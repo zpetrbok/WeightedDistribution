@@ -1,0 +1,36 @@
+    public static T[] CreateRandomWeightedDistribution<T>(T[] objects, int[] weights, int numOfObjects)
+    {
+        int weightCount = 0;
+
+        // loop through the list to add up the total weight count
+        for (int i = 0; i < weights.Length; i++)
+        {
+            weightCount += weights[i];
+        }
+
+        T[] weightedObjects = new T[numOfObjects];
+        int searchValue = 0;
+
+        for (int i = 0; i < numOfObjects; i++)
+        {
+            // create random number of total weight count
+            int rng = UnityEngine.Random.Range(0, weightCount + 1);
+            
+            // loop through all the weights, adding them to the search value until we reach the random number
+            for (int j = 0; j < weights.Length; j++)
+            {
+                searchValue += weights[j];
+
+                if (searchValue >= rng)
+                {
+                    weightedObjects[i] = objects[j];
+                    break;
+                }
+            }
+            
+            // reset and continue until we create the desired number of objects
+            searchValue = 0;
+        }
+
+        return weightedObjects;
+    }
