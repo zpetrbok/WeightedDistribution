@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class WeightedDistribution<T>
 {
-    private KeyValuePair<int, T>[] _distributionCached;
+    private KeyValuePair<int, T>[] _distribution;
 
 
     public WeightedDistribution(T[] objects, int[] weights)
@@ -23,7 +23,7 @@ public class WeightedDistribution<T>
 
         int weightCount = 0;
         KeyValuePair<int, T> newPair;
-        _distributionCached = new KeyValuePair<int, T>[weights.Length];
+        _distribution = new KeyValuePair<int, T>[weights.Length];
 
         // initialize all the pairs and then add them in order
         // increment each pair weight to be + its weight count greater than the previous object
@@ -31,20 +31,20 @@ public class WeightedDistribution<T>
         {
             weightCount += weights[i];
             newPair = new(weightCount, objects[i]);
-            _distributionCached[i] = newPair;
+            _distribution[i] = newPair;
         }
     }
 
     public T GetNewObject()
     {
         // Random.Range is not max inclusive, so the max weight count will always be 1 higher than random.range
-        int rng = UnityEngine.Random.Range(0, _distributionCached[_distributionCached.Length - 1].Key);
+        int rng = UnityEngine.Random.Range(0, _distribution[_distribution.Length - 1].Key);
 
-        for (int i = 0; i < _distributionCached.Length; i++)
+        for (int i = 0; i < _distribution.Length; i++)
         {
-            if (_distributionCached[i].Key > rng)
+            if (_distribution[i].Key > rng)
             {
-                return _distributionCached[i].Value;
+                return _distribution[i].Value;
             }
         }
 
