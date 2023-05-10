@@ -1,6 +1,6 @@
 public class WeightedDistribution<T>
 {
-    private KeyValuePair<int, T>[] _weightedDistributionCached;
+       private KeyValuePair<int, T>[] _distributionCached;
 
 
     public WeightedDistribution(T[] objects, int[] weights)
@@ -17,31 +17,9 @@ public class WeightedDistribution<T>
     {
         if (objects.Length != weights.Length) { Debug.LogError("Item length does not equal weight length!"); return; }
 
-        SetupWeightedDistribution(objects, weights, out _weightedDistributionCached);
-    }
-
-    public T GetNewItem()
-    {
-        return GetNewObject(_weightedDistributionCached);
-    }
-
-    public T[] GetNewItem(int count)
-    {
-        T[] newObjects = new T[count];
-
-        for (int i = 0; i < count; i++)
-        {
-            newObjects[i] = GetNewItem();
-        }
-
-        return newObjects;
-    }
-
-    private void SetupWeightedDistribution(T[] objects, int[] weights, out KeyValuePair<int, T>[] cache)
-    {
         int weightCount = 0;
         KeyValuePair<int, T> newPair;
-        cache = new KeyValuePair<int, T>[weights.Length];
+        _distributionCached = new KeyValuePair<int, T>[weights.Length];
 
         // initialize all the pairs and then add them in order
         // increment each pair weight to be + its weight count greater than the previous object
@@ -49,25 +27,37 @@ public class WeightedDistribution<T>
         {
             weightCount += weights[i];
             newPair = new(weightCount, objects[i]);
-            cache[i] = newPair;
+            _distributionCached[i] = newPair;
         }
     }
 
-    private T GetNewObject(KeyValuePair<int, T>[] weightedCache)
+    public T GetNewObject()
     {
-        // UnityEngine.Random.Range is not max inclusive, so the max weight count will always be 1 higher than random.range
-        int rng = UnityEngine.Random.Range(0, weightedCache[weightedCache.Length - 1].Key);
+        // Random.Range is not max inclusive, so the max weight count will always be 1 higher than random.range
+        int rng = UnityEngine.Random.Range(0, _distributionCached[_distributionCached.Length - 1].Key);
 
-        for (int i = 0; i < weightedCache.Length; i++)
+        for (int i = 0; i < _distributionCached.Length; i++)
         {
-            if (weightedCache[i].Key > rng)
+            if (_distributionCached[i].Key > rng)
             {
-                return weightedCache[i].Value;
+                return _distributionCached[i].Value;
             }
         }
 
         Debug.LogError("No object found!");
 
         return default;
+    }
+
+    public T[] GetNewObject(int count)
+    {
+        T[] newObjects = new T[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            newObjects[i] = GetNewObject();
+        }
+
+        return newObjects;
     }
 }
