@@ -1,6 +1,6 @@
 public class WeightedDistribution<T>
 {
-       private KeyValuePair<int, T>[] _distributionCached;
+    private KeyValuePair<int, T>[] _distributionCached;
 
 
     public WeightedDistribution(T[] objects, int[] weights)
