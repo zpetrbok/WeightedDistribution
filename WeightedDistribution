@@ -1,0 +1,73 @@
+public class WeightedDistribution<T>
+{
+    private KeyValuePair<int, T>[] _weightedDistributionCached;
+
+
+    public WeightedDistribution(T[] objects, int[] weights)
+    {
+        SetupWeightedDistribution(objects, weights);
+    }
+
+    public WeightedDistribution(List<T> objects, List<int> weights)
+    {
+        SetupWeightedDistribution(objects.ToArray(), weights.ToArray());
+    }
+
+    private void SetupWeightedDistribution(T[] objects, int[] weights)
+    {
+        if (objects.Length != weights.Length) { Debug.LogError("Item length does not equal weight length!"); return; }
+
+        SetupWeightedDistribution(objects, weights, out _weightedDistributionCached);
+    }
+
+    public T GetNewItem()
+    {
+        return GetNewObject(_weightedDistributionCached);
+    }
+
+    public T[] GetNewItem(int count)
+    {
+        T[] newObjects = new T[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            newObjects[i] = GetNewItem();
+        }
+
+        return newObjects;
+    }
+
+    public static void SetupWeightedDistribution(T[] objects, int[] weights, out KeyValuePair<int, T>[] cache)
+    {
+        int weightCount = 0;
+        KeyValuePair<int, T> newPair;
+        cache = new KeyValuePair<int, T>[weights.Length];
+
+        // initialize all the pairs and then add them in order
+        // increment each pair weight to be + its weight count greater than the previous object
+        for (int i = 0; i < weights.Length; i++)
+        {
+            weightCount += weights[i];
+            newPair = new(weightCount, objects[i]);
+            cache[i] = newPair;
+        }
+    }
+
+    public static T GetNewObject(KeyValuePair<int, T>[] weightedCache)
+    {
+        // UnityEngine.Random.Range is not max inclusive, so the max weight count will always be 1 higher than random.range
+        int rng = UnityEngine.Random.Range(0, weightedCache[weightedCache.Length - 1].Key);
+
+        for (int i = 0; i < weightedCache.Length; i++)
+        {
+            if (weightedCache[i].Key > rng)
+            {
+                return weightedCache[i].Value;
+            }
+        }
+
+        Debug.LogError("No object found!");
+
+        return default;
+    }
+}
